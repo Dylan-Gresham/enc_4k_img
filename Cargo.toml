@@ -1,0 +1,12 @@
+[package]
+name = "enc_4k_img"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = { version = "0.10.2", features = ["thread_rng"] }
+tfhe = { version = "1.8.1", features = ["boolean", "shortint", "integer"] }
+
+[profile.release]
+opt-level = 3
+lto = true
