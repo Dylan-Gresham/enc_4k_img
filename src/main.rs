@@ -15,7 +15,7 @@ const FULL_IMAGE: bool = true; // Set to `true` to process the full image, or `f
 //   Amount to sample for testing
 //     If `FULL_IMAGE` is `false`, this value will be used to determine how many values to process for testing.
 //     If `FULL_IMAGE` is `true`, this value acts as the batch size for streaming.
-const SAMPLE_SIZE: usize = 5_000;
+const SAMPLE_SIZE: usize = 0;
 
 /// Print timings
 ///
@@ -91,6 +91,14 @@ where
 }
 
 fn main() {
+    if cfg!(debug_assertions) {
+        eprintln!(
+            "Warning: This benchmark is running in debug mode. For accurate timings, run in release mode with `cargo run --release`."
+        );
+    }
+
+    assert!(SAMPLE_SIZE > 0, "SAMPLE_SIZE must be greater than 0");
+
     println!("== TFHE-rs encryption benchmark ==");
     println!(
         "Full 4K RGB image = {} x {} x {} = {} byte-values",
