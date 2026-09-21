@@ -25,6 +25,8 @@ For each section it reports total elapsed time, effective per-value wall-clock t
 
 ## Results
 
+### 150,000 Sample Size
+
 This was run on a 2026 MacBook Pro with an Apple M5 Pro chip (15-core CPU, 16-core GPU, 48 GB RAM) with `SAMPLE_SIZE = 150_000` and `FULL_IMAGE = true`. The results are summarized in the following table:
 
 |         Strategy            |    Threading    |   Total Time  |  Speedup vs. Single-Threaded |
@@ -37,6 +39,21 @@ This was run on a 2026 MacBook Pro with an Apple M5 Pro chip (15-core CPU, 16-co
 The reason for the parallel batched strategy being slower than its single-threaded counterpart is that the overhead of spawning threads and managing work distribution outweighs the benefits of parallelism for this particular workload. The batched approach is already very fast, so the additional complexity of parallel execution does not yield a net gain.
 
 Total runtime for the entire program was 12m 32.88s, including key generation and all four benchmark sections. The maximum resident set size (RSS) was 12.56 GiB, indicating that the `SAMPLE_SIZE` could've been safely increased on this machine. From my experimental testing prior to this run, increasing the `SAMPLE_SIZE` had minimal impact on the total runtime.
+
+### 300,000 Sample Size
+
+Same machine, `SAMPLE_SIZE = 300_000`, `FULL_IMAGE = true`. The results are summarized in the following table:
+
+
+|         Strategy            |    Threading    |   Total Time  |  Speedup vs. Single-Threaded |
+|:---------------------------:|:---------------:|:-------------:|:----------------------------:|
+| Naive per-value `ClientKey` | Single-threaded |   11m 51.44s  |             1.00x            |
+| Naive per-value `ClientKey` |     Parallel    |    1m 12.78s  |             9.77x            |
+| Batched `CompactPublicKey`  | Single-threaded |    0m  1.34s  |             1.00x            |
+| Batched `CompactPublicKey`  |     Parallel    |    0m  1.58s  |             0.85x            |
+
+
+Total runtime for the entire program was 13m 8.02s, including key generation and all four benchmark sections. The maximum resident set size (RSS) was 25.25 GiB, indicating that the `SAMPLE_SIZE` still could've been safely increased on this machine. From my experimental testing prior to this run, increasing the `SAMPLE_SIZE` had minimal impact on the total runtime. From this, we can see that the speedup from parallelization is more pronounced with a larger sample size, as the overhead of thread management is amortized over more work but, the speed of the single-threaded approaches are slower than the smaller sample size, so the speedup is not as pronounced as the smaller sample size.
 
 ## Memory-safe streaming
 
