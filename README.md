@@ -23,6 +23,21 @@ The benchmark treats a 4K grayscale image (3840 × 2160 = 8,294,400 byte values)
 
 For each section it reports total elapsed time, effective per-value wall-clock time, and an extrapolated time for a full 4K image. Section 2 also reports the speedup versus its single-threaded counterpart.
 
+## Results
+
+This was run on a 2026 MacBook Pro with an Apple M5 Pro chip (15-core CPU, 16-core GPU, 48 GB RAM) with `SAMPLE_SIZE = 150_000` and `FULL_IMAGE = true`. The results are summarized in the following table:
+
+|         Strategy            |    Threading    |   Total Time  |  Speedup vs. Single-Threaded |
+|:---------------------------:|:---------------:|:-------------:|:----------------------------:|
+| Naive per-value `ClientKey` | Single-threaded |   11m 10.92s  |             1.00x            |
+| Naive per-value `ClientKey` |     Parallel    |    1m 18.62s  |             8.53x            |
+| Batched `CompactPublicKey`  | Single-threaded |    0m  1.24s  |             1.00x            |
+| Batched `CompactPublicKey`  |     Parallel    |    0m  1.52s  |             0.82x            |
+
+The reason for the parallel batched strategy being slower than its single-threaded counterpart is that the overhead of spawning threads and managing work distribution outweighs the benefits of parallelism for this particular workload. The batched approach is already very fast, so the additional complexity of parallel execution does not yield a net gain.
+
+Total runtime for the entire program was 12m 32.88s, including key generation and all four benchmark sections. The maximum resident set size (RSS) was 12.56 GiB, indicating that the `SAMPLE_SIZE` could've been safely increased on this machine. From my experimental testing prior to this run, increasing the `SAMPLE_SIZE` had minimal impact on the total runtime.
+
 ## Memory-safe streaming
 
 Materializing ciphertexts for all 8.3M values of a full 4K image at once will exhaust memory on most machines and get the process killed (SIGKILL) with no error message. To avoid this, the benchmark processes data in fixed-size batches and drops each batch's ciphertexts before generating the next one, so peak memory stays bounded to roughly one batch's worth of ciphertexts rather than the whole image.
