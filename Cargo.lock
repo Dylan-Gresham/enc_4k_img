@@ -232,6 +232,7 @@ name = "enc_4k_img"
 version = "0.1.0"
 dependencies = [
  "rand",
+ "rayon",
  "tfhe",
 ]
 

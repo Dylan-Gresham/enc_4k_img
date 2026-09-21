@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 rand = { version = "0.10.2", features = ["thread_rng"] }
+rayon = "1.12.0"
 tfhe = { version = "1.8.1", features = ["boolean", "shortint", "integer"] }
 
 [profile.release]
